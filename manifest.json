@@ -1,6 +1,7 @@
 {
+   "manifest_version": 2,
    "background": {
-     "persistent": true
+     "persistent": true,
      "page": "background.html"
    },
    "description": "Tweet from the omnibar",
