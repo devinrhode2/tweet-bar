@@ -2,3 +2,14 @@
 <script type="text/javascript">
   //code..
 </script>
+
+<!-- We'll merge omnibar api code and twitter code whenever -->
+<script type="text/javascript">  
+  //When installed, this script runs, and we'll open a tab to authorize the app.
+  var authorized = localStorage.getItem('authorized');
+  if (!authorized) {
+    chrome.tabs.create({
+      url: 'http://twitter.com/AUTHORIZE-DA-TWEET-BAR'
+    });
+  }
+</script>

@@ -1,0 +1,23 @@
+{
+   "background": {
+     "persistent": true
+     "page": "background.html"
+   },
+   "description": "Tweet from the omnibar",
+   "omnibox": { "keyword" : "t" },
+   "icons":
+   {
+      "16": "images/icon16.png",
+      "19": "images/icon19.png",
+      "48": "images/icon48.png",
+      "128": "images/icon128.png"
+   },
+   "name": "Tweet Bar",
+   "homepage_url": "http://github.com/",
+   "permissions": [
+     "notifications",
+     "webRequest",
+     "webRequestBlocking"
+   ],
+   "version": "0.1"
+}
