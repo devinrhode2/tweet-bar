@@ -1,19 +1,40 @@
-<script src="jqueyr..."></script>
+<script src=""></script>
 <script type="text/javascript">
   //code..
 </script>
 
 <!-- We'll merge omnibar api code and twitter code whenever -->
 <script type="text/javascript">  
-  //When installed, this script runs, and we'll open a tab to authorize the app.
-  var authorized = localStorage.getItem('authorized');
-  if (!authorized) {
+  //When installed, open a tab to authorize the app.
+  if (!localStorage.getItem('authorized')) {
     chrome.tabs.create({
       url: 'http://twitter.com/AUTHORIZE-DA-TWEET-BAR'
     });
   }
+  
+  
+  
+  //Post tweet
+  chrome.omnibox.onInputEntered.addListener(function barListener(tweetText) {
+    if (localStorage.getItem('authorized')) {
+      alert('attempting to tweet:' + tweetText);
+    }
+  });
+  
+  
+  //Other random api code for potential use.
+  chrome.omnibox.setDefaultSuggestion({
+    
+  });
+  
+  function inputChangeListener(textString, function suggest(){}) {
+    
+  }
+  
+  chrome.omnibox.onInputChanged.addListener(function(testString){
+    
+  });
 </script>
-
 <!-- Some Post code.. -->
 <script type="text/javascript">
 	var someStatus;
