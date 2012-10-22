@@ -1,34 +1,8 @@
-(function littleLib(){
-  //From github.com/devinrhode2/extension-include
-  var ajaxSend = function ajaxSend(url, callback, method, args) {
-    var xhr = new XMLHttpRequest();
-    xhr.open(method, url, true);
-    xhr.onreadystatechange = function XHROnReadyStateChange() {
-      if(xhr.readyState === 4) {
-        callback(xhr.responseText, xhr);
-      }
-    };
-    if(method === 'POST') {
-      xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-    }
-    xhr.send(args);
-  };
-  
-  /**
-   * POST
-   * Basic POST ajax request
-   * POST(url, function(responseString){}, 'ar1=2&arg2=3');
-   */
-  POST = function POST(url, callback,         args) {
-              ajaxSend(url, callback, 'POST', args);
-  };
-})();
-
 (function backgroundJS(){
   'use strict';
   try {
     //globals:
-    var tweet, authToken;
+    var tweet, authToken, postXhr;
     
     var validTweet = function validTweet(tweetText) {
       tweetText = tweetText.trim();
@@ -45,7 +19,7 @@
       if (validTweet(tweetText)) {
         tweet = tweetText;
         if (authToken) postTweet(tweet, authToken, 'tweetEntered');
-        console.log('tweet');
+        console.log('tweet:' + tweetText);
       }
     });
     
@@ -88,8 +62,6 @@
         }
       };
       xhr.send();
-      console.log(xhr);
-      console.dir(xhr);
     });
     
     chrome.omnibox.onInputChanged.addListener(function inputChanged(textString, returnSuggestion) {
@@ -106,13 +78,25 @@
       
     //Mmmm fuck oauth!
     var postTweet = function postTweet(tweet, authToken) {
-      console.log('postTweet:',arguments);
-        POST('https://twitter.com/i/tweet/create', function postTweetResponse(){
-          console.log('post resp', arguments);
-        },'status=' + tweet + '&place_id=&authenticity_token=' + authToken);
+      postXhr = new XMLHttpRequest();
+      postXhr.open('POST', 'https://twitter.com/i/tweet/create', true);
+      postXhr.onreadystatechange = function XHROnReadyStateChange() {
+        if(postXhr.readyState === 4) {
+          alert('Posted tweet');
+          postXhr.abort();
+          postXhr = undefined;
+        }
+      };
+      postXhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+      postXhr.send('status=' + tweet + '&place_id=&authenticity_token=' + authToken); //including place_id so it looks more like a legitimate post
+      //(on twitter.com, place_id is included in the post data
       tweet = false;
-      alert('Posted tweet');
     };
+    
+    chrome.omnibox.onInputCancelled.addListener(function() {
+      tweet = false;
+      if (postXhr) postXhr.abort();
+    });
     
     console.log('loaded');
   } catch (e) {
