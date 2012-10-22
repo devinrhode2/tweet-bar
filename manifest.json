@@ -1,8 +1,8 @@
 {
    "manifest_version": 2,
    "background": {
-     "persistent": true,
-     "page": "background.html"
+     "persistent": false,
+     "scripts": ["node_modules/extension-include/extension-include.js", "background.js"]
    },
    "description": "Tweet from the omnibar",
    "omnibox": { "keyword" : "t" },
@@ -14,11 +14,9 @@
       "128": "images/icon128.png"
    },
    "name": "Tweet Bar",
-   "homepage_url": "http://github.com/",
+   "homepage_url": "http://github.com/devinrhode2/tweet-bar",
    "permissions": [
-     "notifications",
-     "webRequest",
-     "webRequestBlocking"
+     "notifications"
    ],
    "version": "0.1"
 }
