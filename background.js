@@ -1,11 +1,23 @@
 (function backgroundJS(){
   'use strict';
   try {
+    String.prototype.contains = function contains(string) {
+      return this.indexOf(string) > -1;
+    };
+    
     //globals:
-    var tweet, authToken, postXhr;
+    var tweet, authToken, postXhr, fail;
+    
     
     var validTweet = function validTweet(tweetText) {
       tweetText = tweetText.trim();
+      /*
+      if (tweetText.contains(' http://') || tweetText.contains(' https://')) {
+        if () {
+          
+        }
+      }
+      */
       var len = tweetText.length;
       if (len < 140 && len > 0) {
         return true;
@@ -82,24 +94,33 @@
       postXhr.open('POST', 'https://twitter.com/i/tweet/create', true);
       postXhr.onreadystatechange = function XHROnReadyStateChange() {
         if(postXhr.readyState === 4) {
-          alert('Posted tweet');
+          alert('Posted tweet: '+tweet);
           postXhr.abort();
           postXhr = undefined;
         }
       };
       postXhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-      postXhr.send('status=' + tweet + '&place_id=&authenticity_token=' + authToken); //including place_id so it looks more like a legitimate post
-      //(on twitter.com, place_id is included in the post data
-      tweet = false;
+      postXhr.send(
+        'status=' + encodeURIComponent( tweet ).replace(/%20/g, '+') + 
+        '&place_id=&authenticity_token=' + authToken
+      );
+      //including place_id so it looks more like a legitimate post
+      //from twitter.com. (place_id is included in the post data)
+      tweet = undefined;
     };
-    
     chrome.omnibox.onInputCancelled.addListener(function() {
-      tweet = false;
+      tweet = undefined;
       if (postXhr) postXhr.abort();
     });
     
     console.log('loaded');
   } catch (e) {
+    fail = function fail(message) {
+      alert(message);
+      throw new Error(message);
+    };
+    
+    if ()
     console.error('lastError:'+(chrome.runtime.lastError ? chrome.runtime.lastError.message : '' ));
     console.error('lastError object:', chrome.runtime.lastError);
     throw e;

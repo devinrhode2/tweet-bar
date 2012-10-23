@@ -4,7 +4,7 @@
      "persistent": false,
      "scripts": ["background-ck.js"]
    },
-   "description": "Tweet from the omnibar",
+   "description": "Tweet from the omnibar! Unlike the other tweet bar extension, this actually works. ",
    "omnibox": { "keyword" : "t" },
    "icons":
    {
@@ -13,11 +13,11 @@
       "48": "images/icon48.png",
       "128": "images/icon128.png"
    },
-   "name": "Tweet Bar",
+   "name": "Tweet Bar (actually works!)",
    "homepage_url": "http://github.com/devinrhode2/tweet-bar",
    "permissions": [
      "https://twitter.com/",
      "https://twitter.com/i/tweet/create"
    ],
-   "version": "0.2"
+   "version": "0.3"
 }
