@@ -2,7 +2,7 @@
 
 ## Tweet from the omnibar
 
-<h4><em>Hands down, the fastest way to write a tweet.</em></h6>
+<h6><em>Hands down, the fastest way to write a tweet.</em></h6>
 
 <h5>
 Simply open a new tab (cmd + t), type 't' and a space, write your tweet, hit enter and it posts!<br>
