@@ -1,23 +1,15 @@
 (function backgroundJS(){
   'use strict';
   try {
-    String.prototype.contains = function contains(string) {
-      return this.indexOf(string) > -1;
-    };
-    
     //globals:
-    var tweet, authToken, postXhr, fail;
-    
+    var tweet, authToken, postXhr;
     
     var validTweet = function validTweet(tweetText) {
       tweetText = tweetText.trim();
-      /*
-      if (tweetText.contains(' http://') || tweetText.contains(' https://')) {
-        if () {
-          
-        }
-      }
-      */
+      
+      //Find and pseudo-shorten urls:
+      
+      
       var len = tweetText.length;
       if (len < 140 && len > 0) {
         return true;
@@ -89,40 +81,34 @@
     });
       
     //Mmmm fuck oauth!
-    var postTweet = function postTweet(tweet, authToken) {
+    var postTweet = function postTweet(tweet, authToken, from) {
       postXhr = new XMLHttpRequest();
       postXhr.open('POST', 'https://twitter.com/i/tweet/create', true);
       postXhr.onreadystatechange = function XHROnReadyStateChange() {
         if(postXhr.readyState === 4) {
-          alert('Posted tweet: '+tweet);
+          alert('Posted tweet'+from);
           postXhr.abort();
           postXhr = undefined;
         }
       };
       postXhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-      postXhr.send(
-        'status=' + encodeURIComponent( tweet ).replace(/%20/g, '+') + 
-        '&place_id=&authenticity_token=' + authToken
-      );
-      //including place_id so it looks more like a legitimate post
-      //from twitter.com. (place_id is included in the post data)
-      tweet = undefined;
+      postXhr.send('status=' + tweet + '&place_id=&authenticity_token=' + authToken); //including place_id so it looks more like a legitimate post
+      //(on twitter.com, place_id is included in the post data
+      tweet = false;
     };
+    
     chrome.omnibox.onInputCancelled.addListener(function() {
-      tweet = undefined;
+      tweet = false;
       if (postXhr) postXhr.abort();
     });
     
     console.log('loaded');
   } catch (e) {
-    fail = function fail(message) {
-      alert(message);
-      throw new Error(message);
-    };
-    
-    if ()
     console.error('lastError:'+(chrome.runtime.lastError ? chrome.runtime.lastError.message : '' ));
     console.error('lastError object:', chrome.runtime.lastError);
     throw e;
   }
+  
+  //Put this at the bottom cause it screws up syntax highlighting.
+  var isUrl = /(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))/gi
 })();
