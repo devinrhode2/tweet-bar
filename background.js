@@ -17,7 +17,7 @@
         var end = tweetText.indexOf(' ', urlSpot);
         
         var urlNum = urls.length;
-        var urls[urlNum] = tweetText.substring(urlSpot, end);
+        urls[urlNum] = tweetText.substring(urlSpot, end);
         
         
         urlSpot = tweetText.search(isUrl);
@@ -123,5 +123,5 @@
   }
   
   //Put this at the bottom cause it screws up syntax highlighting.
-  var isUrl = /(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))/gi
+/*   var isUrl = /(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))/gi; */
 })();
