@@ -1,0 +1,25 @@
+{
+  "name": "tweet-bar",
+  "version": "0.0.0",
+  "description": "Tweet from the omnibar in chrome!",
+  "main": "background.js",
+  "dependencies": {
+    "extension-include": "~1.2.4",
+    "grunt-stylus": "~0.2.0",
+    "node-static": "~0.6.4",
+    "twitter-text": "~1.5.1",
+    "sockjs": "~0.3.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/devinrhode2/tweet-bar.git"
+  },
+  "author": "Devin Rhode",
+  "license": "unlicensed (aka ask me)",
+  "readmeFilename": "README.markdown"
+}

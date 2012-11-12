@@ -1,14 +1,22 @@
 /*global module:false*/
 module.exports = function(grunt) {
-
+  "use strict";
+  
+  var manifest = grunt.file.readJSON( 'manifest.json' );
+  console.log(manifest);
+  grunt.verbose.write( "Reading " + filepath + "..." ).ok();
+  
+  //Modify concatenate background.scripts ..
+  grunt.file.write('')
+    
   // Project configuration.
   grunt.initConfig({
-    pkg: '<json:package.json>',
+    pkg: '<json:manifest.json>',
     meta: {
-      banner: '/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - ' +
+      banner: '/*! <%= pkg.title || pkg.name %> v'+manifest.version+', By Devin Rhode ' +
         '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
         '<%= pkg.homepage ? "* " + pkg.homepage + "\n" : "" %>' +
-        '* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
+        '* Copyright (c) <%= grunt.template.today("yyyy") %> Devin Rhode;' +
         ' Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> */'
     },
     lint: {
@@ -19,8 +27,12 @@ module.exports = function(grunt) {
     },
     concat: {
       dist: {
-        src: ['<banner:meta.banner>', ''],
-        dest: 'dist/<%= pkg.name %>.js'
+        src: [
+          '<banner:meta.banner>',
+          /*libraries: */ 'node_modules/twitter-text/twitter-text.js', 'node_modules/extenson-include/extenson-include.js',
+          'background.js'
+        ],
+        dest: 'extension/background.js'
       }
     },
     min: {
