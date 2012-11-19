@@ -1,53 +1,31 @@
-<script src="sockjs-0.3.min.js"></script>
+<script src="sockjs-0.3.2.js"></script>
 <script type="text/javascript">
 
-var _WebSocket = WebSocket;
-_WebSocket.name = '_WebSocket';
-var WebSocket = function WebSocketOverride() {
-  console.log(arguments);
-  _WebSocket.apply(this, arguments);
-};
-
-//Connect to backend..!
-var hash = location.hash;
-var sock = hash === '#sock' ? new SockJS('http://0.0.0.0:3000/echo'):
-           hash === '#ws'   ? new WebSocket('ws://0.0.0.0:3000/echo'):
-           {};
+var sock = new SockJS('http://localhost:3000/echo', undefined, {
+  debug: true, protocols_whitelist: [
+    // only allow polling protocols. no websockets or streaming.
+    // streaming makes safari spin, and websockets hurt chrome. -search github.com/meteor/meteor/issues for "sockjs"
+    'xdr-polling', 'xhr-polling', 'iframe-xhr-polling', 'jsonp-polling'
+  ]});
 
 ['open', 'message', 'close', 'error'].forEach(function eventForeach(event) {
   sock['on'+event] = function socketEvent() {
     console.log('on'+event+':', arguments);
+    if (event === 'open') {
+      sock.send('some version');
+    }
   };
 });
-//sock.send(hash);
 
-/*
-        var sockjs_url = '/echo';
-        var sockjs = new SockJS(sockjs_url);
-        $('#first input').focus();
+sock.onmessage = function sockMessage() {
+  
+};
 
-        var div  = $('#first div');
-        var inp  = $('#first input');
-        var form = $('#first form');
+sock.onopen = function sockOpen() {
+  console.log('open', )
+  sock.send(hash);
+};
 
-        var print = function(m, p) {
-            p = (p === undefined) ? '' : JSON.stringify(p);
-            div.append($("<code>").text(m + ' ' + p));
-            div.append($("<br>"));
-            div.scrollTop(div.scrollTop()+10000);
-        };
 
-        sockjs.onopen    = function()  {print('[*] open', sockjs.protocol);};
-        sockjs.onmessage = function(e) {print('[.] message', e.data);};
-        sockjs.onclose   = function()  {print('[*] close');};
-
-        form.submit(function() {
-            print('[ ] sending', inp.val());
-            sockjs.send(inp.val());
-            inp.val('');
-            return false;
-        });
-*/
 
 </script>
-asdf

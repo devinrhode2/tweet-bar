@@ -2,15 +2,29 @@
 var http = require('http');
 var sockjs = require('sockjs');
 var node_static = require('node-static');
+var grunt = require('grunt');
+
+var exec = require('child_process').exec;
+
+exec('grunt && grunt watch',
+  { cwd: process.cwd() },
+  function (error, stdout, stderr) {
+    console.log('stdout: ' + stdout);
+    console.log('stderr: ' + stderr);
+    if (error !== null) {
+      console.log('exec error: ' + error);
+    }
+});
 
 // 1. Echo sockjs server
 var sockjs_opts = {
-  sockjs_url: "http://cdn.sockjs.org/sockjs-0.3.min.js"
+  sockjs_url: "http://cdn.sockjs.org/sockjs-0.3.2.min.js"
 };
 
 var sockjs_echo = sockjs.createServer(sockjs_opts);
-sockjs_echo.on('connection', function(conn) {
-  conn.on('data', function(message) {
+sockjs_echo.on('connection', function sockOnConnection(conn) {
+  console.log(conn);
+  conn.on('data', function sockOnData(message) {
     conn.write(message);
   });
 });
