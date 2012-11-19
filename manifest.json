@@ -18,7 +18,6 @@
       "128": "compiled/images/icon128.png"
    },
    "name": "Tweet Bar",
-   "homepage_url": "http://github.com/devinrhode2/tweet-bar",
    "permissions": [
      "https://twitter.com/",
      "https://twitter.com/i/tweet/create",
