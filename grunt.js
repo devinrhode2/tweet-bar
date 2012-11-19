@@ -1,52 +1,52 @@
-/*global module:false*/
-module.exports = function(grunt) {
-  "use strict";
+/*global module:false, require:false */
+module.exports = function gruntJS(grunt) {
+  'use strict';
+  console.log('running grunt.js');
+  grunt.loadNpmTasks('grunt-closure-compiler');
   
-  var manifest = grunt.file.readJSON( 'manifest.json' );
-  console.log(manifest);
-  grunt.verbose.write( "Reading " + filepath + "..." ).ok();
+  //Handle manifest
+  var jqExtend = require('./jqExtend.js');
+  var manifest = grunt.file.readJSON('manifest.json');
+  var newManifest = jqExtend(true, {}, manifest);
+  newManifest.background.scripts = ['background.cc.js'];
   
-  //Modify concatenate background.scripts ..
-  grunt.file.write('')
-    
+  for (var img in newManifest.icons) {
+    newManifest.icons[img] = newManifest.icons[img].replace('compiled/', '');
+  }
+  
+  grunt.file.write('compiled/manifest.json', JSON.stringify(newManifest));
+  
+  
   // Project configuration.
+  var banner = '/*! ' + manifest.name + ' v' + manifest.version +
+               ' * Copyright (c) <%= grunt.template.today("yyyy") %> Devin Rhode */';
   grunt.initConfig({
     pkg: '<json:manifest.json>',
     meta: {
-      banner: '/*! <%= pkg.title || pkg.name %> v'+manifest.version+', By Devin Rhode ' +
-        '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
-        '<%= pkg.homepage ? "* " + pkg.homepage + "\n" : "" %>' +
-        '* Copyright (c) <%= grunt.template.today("yyyy") %> Devin Rhode;' +
-        ' Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> */'
+      banner: banner
     },
-    lint: {
-      files: ['grunt.js', 'lib/**/*.js', 'test/**/*.js']
-    },
-    qunit: {
-      files: ['test/**/*.html']
-    },
-    concat: {
-      dist: {
-        src: [
-          '<banner:meta.banner>',
-          /*libraries: */ 'node_modules/twitter-text/twitter-text.js', 'node_modules/extenson-include/extenson-include.js',
-          'background.js'
-        ],
-        dest: 'extension/background.js'
-      }
-    },
-    min: {
-      dist: {
-        src: ['<banner:meta.banner>', '<config:concat.dist.dest>'],
-        dest: 'dist/<%= pkg.name %>.min.js'
+    'closure-compiler': {
+      frontend: {
+        js: manifest.background.scripts,
+        jsOutputFile: 'compiled/background.cc.js',
+        maxBuffer: 500,
+        options: {
+          'compilation_level': 'ADVANCED_OPTIMIZATIONS',
+          'language_in': 'ECMASCRIPT5_STRICT'
+        }
       }
     },
     watch: {
       files: '<config:lint.files>',
-      tasks: 'lint qunit'
+      tasks: 'lint'
+    },
+    lint: {
+      files: ['grunt.js', 'background.js']
     },
     jshint: {
       options: {
+      /*
+        INIT:NODE/COMMONJS/GRUNTFILE
         curly: true,
         eqeqeq: true,
         immed: true,
@@ -56,17 +56,61 @@ module.exports = function(grunt) {
         sub: true,
         undef: true,
         boss: true,
-        eqnull: true,
+        eqnull: true
         browser: true
+        
+        //SITE
+        curly:true,
+        noarg:true,
+        noempty:true,
+        eqeqeq:true,
+        bitwise:true,
+        strict:true,
+        undef:true,
+        unused:true,
+        browser:true,
+        devel:true,
+        indent:4,
+        maxerr:50
+      */
+      
+        // Uncommented are default grunt options
+        bitwise: true, //Added from site
+        curly: true,
+        eqeqeq: true,
+        immed: true,
+        latedef: true,
+        newcap: true,
+        noarg: true,
+        noempty: true, //Added from site
+        nonew: true, //Added
+        quotmark: 'single', //Added
+        regexp: true,
+        undef: true,
+        unused: true, //Added from site
+        strict: true, //Added from site
+        sub: true,
+        /* boss: true, dont' allow assignments to be evaluated as truthy/falsey */
+        eqnull: true, //Allow == null
+        browser: true,
+        indent: 2, //Added from site
+        devel: true, //Added
+        
+        //Adding a few of nice restrictions:
+        camelcase: true,
+        trailing: true,
+        maxparams: 6,
+        maxdepth: 9,
+        maxerr: 12
       },
       globals: {
-        chrome: true
+        chrome: false,
+        twttr: false
       }
-    },
-    uglify: {}
+    }
   });
 
   // Default task.
-  grunt.registerTask('default', 'lint qunit concat min');
+  grunt.registerTask('default', 'lint closure-compiler');
 
 };

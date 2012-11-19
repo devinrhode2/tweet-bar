@@ -1,61 +1,20 @@
-(function backgroundJS(){
+(function backgroundJS() {
   'use strict';
   try {
+  
     //globals:
-    var tweet, authToken, postXhr;
-    
-    var validTweet = function validTweet(tweetText) {
-      tweetText = tweetText.trim();
-      
-      //Find and pseudo-shorten urls:
-      
-      var urlSpot = tweetText.search(isUrl);
-      var urls = [];
-      while (urlSpot > -1) {
-        
-        var marker = '!@#$%^&*()_+{}|<>?';
-        var end = tweetText.indexOf(' ', urlSpot);
-        
-        var urlNum = urls.length;
-        urls[urlNum] = tweetText.substring(urlSpot, end);
-        
-        
-        urlSpot = tweetText.search(isUrl);
-      }
-      
-      var len = tweetText.length;
-      if (len < 140 && len > 0) {
-        return true;
-      } else {
-        return false;
-      }
-    };
+    var tweet = false, authToken, postXhr;
     
     //Post tweet listener
     chrome.omnibox.onInputEntered.addListener(function barListener(tweetText) {
-      if (validTweet(tweetText)) {
+      if (twttr.txt.isValidTweetText(tweetText)) {
         tweet = tweetText;
-        if (authToken) postTweet(tweet, authToken, 'tweetEntered');
+        if (authToken) {
+          postTweet(tweet, authToken, 'tweetEntered');
+        }
         console.log('tweet:' + tweetText);
       }
     });
-    
-  /*
-      //some of twitter's url handling code
-      var b = this.val();
-      a = b.length, this.hasMedia && (a += c + 1);
-      var e = d.extractUrls(b), f = e.join("");
-      a -= f.length, a += e.length * c;
-      var g = f.match(/https:/g);
-      return a += g ? g.length : 0, a
-  */
-    
-    //Other random api code for potential use.
-    var defaultSuggestion = 'Tweet: %s';
-      chrome.omnibox.setDefaultSuggestion({
-      description: defaultSuggestion
-    });
- 
     
     //when input starts, go get an authenticity_token
     chrome.omnibox.onInputStarted.addListener(function inputStarted() {
@@ -65,27 +24,41 @@
       xhr.open('GET', 'https://twitter.com', true);
       xhr.onreadystatechange = function ManualReadyStateChange() {
         var box, resp = xhr.responseText; //box is multipurpose variable, which saves _some_ memory
-        if (resp) box = resp.indexOf('name="authenticity_token"');
+        if (resp) {
+          box = resp.indexOf('name="authenticity_token"');
+        }
         
         //Once we have the authenticy token we're done.
-        if(resp && box > -1) {
+        if (resp && box > -1) {
           box = resp.substring(0, box);
           var start = box.lastIndexOf('value="') + 7;
           var end = box.lastIndexOf('"');
           authToken = box.substring(start, end);
-          console.log('authToken:'+authToken);
-          if (tweet) postTweet(tweet, authToken, 'xhr');
+          console.log('authToken:' + authToken);
+          if (tweet) {
+            postTweet(tweet, authToken, 'xhr');
+          }
           xhr.abort();//abort once we have the authToken! Saves resources!
         }
       };
+      console.log('onInputStarted, request authToken');
       xhr.send();
     });
     
-    chrome.omnibox.onInputChanged.addListener(function inputChanged(textString, returnSuggestion) {
+    
+    //Other random api code for potential use.
+    var defaultSuggestion = 'Tweet: %s';
+    chrome.omnibox.setDefaultSuggestion({
+      description: defaultSuggestion
+    });
+    chrome.omnibox.onInputChanged.addListener(function inputChanged(textString/* , returnSuggestion */) {
       if (textString.length > 100) {
-        chrome.omnibox.setDefaultSuggestion({
-          description: 'Tweet (' + textString.length + '): %s'
-        });
+        var realLength = twttr.txt.getTweetLength(textString);
+        if (realLength > 100) {
+          chrome.omnibox.setDefaultSuggestion({
+            description: 'Tweet (' + realLength + '): %s'
+          });
+        }
       } else {
         chrome.omnibox.setDefaultSuggestion({
           description: defaultSuggestion
@@ -98,10 +71,38 @@
       postXhr = new XMLHttpRequest();
       postXhr.open('POST', 'https://twitter.com/i/tweet/create', true);
       postXhr.onreadystatechange = function XHROnReadyStateChange() {
-        if(postXhr.readyState === 4) {
-          alert('Posted tweet'+from);
+        if (postXhr.readyState === 4) {
+          var fromXhr = (from === 'xhr' ? ' from xhr!' : '');
+          
+          if (postXhr.status === 200) {
+            alert('Successfully posted tweet' + fromXhr);
+          } else {
+            (function potentialOptimization() { //Perhaps this closure helps memory.. I dunno
+              
+              var copySuccessful = true;
+              try {
+                //Hate this code.. but it works!
+                var copyDiv = document.createElement('div');
+                copyDiv.contentEditable = true;
+                document.body.appendChild(copyDiv);
+                copyDiv.innerHTML = tweet;
+                copyDiv.unselectable = 'off';
+                copyDiv.focus();
+                document.execCommand('SelectAll');
+                document.execCommand('Copy', false, null);
+                document.body.removeChild(copyDiv);
+                
+                copySuccessful = false;
+                alert('Your tweet failed to post, so we copied it to your clipboard.');
+              } catch ( _ ) { }
+              chrome.tabs.create({
+                'url': 'https://twitter.com/' +  (copySuccessful ? '' : '#' + tweet)
+              });
+              
+            }());
+          }
           postXhr.abort();
-          postXhr = undefined;
+          postXhr = null;
         }
       };
       postXhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
@@ -110,18 +111,18 @@
       tweet = false;
     };
     
-    chrome.omnibox.onInputCancelled.addListener(function() {
+    chrome.omnibox.onInputCancelled.addListener(function inputCancelled() {
       tweet = false;
-      if (postXhr) postXhr.abort();
+      if (postXhr) {
+        postXhr.abort();
+      }
     });
     
     console.log('loaded');
   } catch (e) {
-    console.error('lastError:'+(chrome.runtime.lastError ? chrome.runtime.lastError.message : '' ));
+    alert('lastError:' + (chrome.runtime.lastError ? chrome.runtime.lastError.message : ''));
     console.error('lastError object:', chrome.runtime.lastError);
     throw e;
   }
   
-  //Put this at the bottom cause it screws up syntax highlighting.
-/*   var isUrl = /(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))/gi; */
 })();

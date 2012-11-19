@@ -12,16 +12,17 @@
    "omnibox": { "keyword" : "t" },
    "icons":
    {
-      "16": "images/icon16.png",
-      "19": "images/icon19.png",
-      "48": "images/icon48.png",
-      "128": "images/icon128.png"
+      "16": "compiled/images/icon16.png",
+      "19": "compiled/images/icon19.png",
+      "48": "compiled/images/icon48.png",
+      "128": "compiled/images/icon128.png"
    },
-   "name": "Tweet Bar (actually works!)",
+   "name": "Tweet Bar",
    "homepage_url": "http://github.com/devinrhode2/tweet-bar",
    "permissions": [
      "https://twitter.com/",
-     "https://twitter.com/i/tweet/create"
+     "https://twitter.com/i/tweet/create",
+     "clipboardWrite"
    ],
    "version": "0.3"
 }
