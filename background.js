@@ -18,6 +18,7 @@
     
     //when input starts, go get an authenticity_token
     chrome.omnibox.onInputStarted.addListener(function inputStarted() {
+      console.log('onInputStarted, requesting authToken');
       
       // Bare bones XHR because we don't need the whole response.
       var xhr = new XMLHttpRequest();
@@ -34,6 +35,9 @@
           var start = box.lastIndexOf('value="') + 7;
           var end = box.lastIndexOf('"');
           authToken = box.substring(start, end);
+          if (authToken.indexOf(' ') > -1) {
+            throw new Error('authToken is clearly invalid, it contains spaces.');
+          }
           console.log('authToken:' + authToken);
           if (tweet) {
             postTweet(tweet, authToken, 'xhr');
@@ -41,12 +45,11 @@
           xhr.abort();//abort once we have the authToken! Saves resources!
         }
       };
-      console.log('onInputStarted, request authToken');
       xhr.send();
     });
     
     
-    //Other random api code for potential use.
+    //Character counter/suggestion text.
     var defaultSuggestion = 'Tweet: %s';
     chrome.omnibox.setDefaultSuggestion({
       description: defaultSuggestion
@@ -54,9 +57,13 @@
     chrome.omnibox.onInputChanged.addListener(function inputChanged(textString/* , returnSuggestion */) {
       if (textString.length > 100) {
         var realLength = twttr.txt.getTweetLength(textString);
-        if (realLength > 100) {
+        if (realLength > 140) {
           chrome.omnibox.setDefaultSuggestion({
-            description: 'Tweet (' + realLength + '): %s'
+            description: 'Tweet (' + realLength + '): TWEET TOO LONG'
+          });
+        } else {
+          chrome.omnibox.setDefaultSuggestion({
+            description: 'Tweet (' + realLength + '): %s (' + realLength + ')'
           });
         }
       } else {
@@ -72,7 +79,7 @@
       postXhr.open('POST', 'https://twitter.com/i/tweet/create', true);
       postXhr.onreadystatechange = function XHROnReadyStateChange() {
         if (postXhr.readyState === 4) {
-          var fromXhr = (from === 'xhr' ? ' from xhr!' : '');
+          var fromXhr = (from === 'xhr' ? ' (from xhr state)' : '');
           
           if (postXhr.status === 200) {
             alert('Successfully posted tweet' + fromXhr);
@@ -124,5 +131,4 @@
     console.error('lastError object:', chrome.runtime.lastError);
     throw e;
   }
-  
-})();
+}());

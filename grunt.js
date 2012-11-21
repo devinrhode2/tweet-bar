@@ -2,21 +2,22 @@
 module.exports = function gruntJS(grunt) {
   'use strict';
   console.log('running grunt.js');
+  
+  //require closure-compiler
   grunt.loadNpmTasks('grunt-closure-compiler');
   
   //Handle manifest
-  var jqExtend = require('./jqExtend.js');
+  var jqExtend = require('./build/jQuery.extend.js');
   var manifest = grunt.file.readJSON('manifest.json');
+  
+  //create manifest for compiled extension
   var newManifest = jqExtend(true, {}, manifest);
   newManifest.background.scripts = ['background.cc.js'];
-  
   for (var img in newManifest.icons) {
     newManifest.icons[img] = newManifest.icons[img].replace('compiled/', '');
   }
-  
   grunt.file.write('compiled/manifest.json', JSON.stringify(newManifest));
-  
-  
+    
   // Project configuration.
   var banner = '/*! ' + manifest.name + ' v' + manifest.version +
                ' * Copyright (c) <%= grunt.template.today("yyyy") %> Devin Rhode */';
@@ -28,11 +29,13 @@ module.exports = function gruntJS(grunt) {
     'closure-compiler': {
       frontend: {
         js: manifest.background.scripts,
+        simple: ['node_modules/twitter-text/twitter-text.js'],
         jsOutputFile: 'compiled/background.cc.js',
         maxBuffer: 500,
         options: {
-          'compilation_level': 'SIMPLE_OPTIMIZATIONS',
-          'language_in': 'ECMASCRIPT5_STRICT'
+          'compilation_level': 'ADVANCED_OPTIMIZATIONS',
+          'language_in': 'ECMASCRIPT5_STRICT',
+          'externs': require('fs').readdirSync('./build/cc-externs')
         }
       }
     },
@@ -109,8 +112,7 @@ module.exports = function gruntJS(grunt) {
       }
     }
   });
-
+  
   // Default task.
   grunt.registerTask('default', 'lint closure-compiler');
-
 };
