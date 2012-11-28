@@ -7,7 +7,7 @@ module.exports = function gruntJS(grunt) {
   grunt.loadNpmTasks('grunt-closure-compiler');
   
   //Handle manifest
-  var jqExtend = require('./build/jQuery.extend.js');
+  var jqExtend = require('jquery.extend');
   var manifest = grunt.file.readJSON('manifest.json');
   
   //create manifest for compiled extension
