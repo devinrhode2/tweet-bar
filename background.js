@@ -1,4 +1,4 @@
-(function backgroundJS() {
+;(function backgroundJS() {
   'use strict';
   try {
   
@@ -75,6 +75,11 @@
       
     //Mmmm fuck oauth!
     var postTweet = function postTweet(tweet, authToken, from) {
+      console.assert(typeof tweet === 'string');
+      console.assert(tweet.length > 0);
+      console.assert(typeof authToken === 'string');
+      console.assert(authToken.length > 5);
+      console.assert(authToken.indexOf(' ') === -1);
       postXhr = new XMLHttpRequest();
       postXhr.open('POST', 'https://twitter.com/i/tweet/create', true);
       postXhr.onreadystatechange = function XHROnReadyStateChange() {
@@ -100,7 +105,7 @@
                 document.body.removeChild(copyDiv);
                 
                 copySuccessful = false;
-                alert('Your tweet failed to post, so we copied it to your clipboard.');
+                alert('Your tweet failed to post, so we copied it to your clipboard.' + fromXhr);
               } catch ( _ ) { }
               chrome.tabs.create({
                 'url': 'https://twitter.com/' +  (copySuccessful ? '' : '#' + tweet)
@@ -108,7 +113,7 @@
               
             }());
           }
-          postXhr.abort();
+          postXhr.abort(); //dont waste users bandwidth!
           postXhr = null;
         }
       };
