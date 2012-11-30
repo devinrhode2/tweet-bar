@@ -28,7 +28,8 @@
             var end = box.lastIndexOf('"');
             authToken = box.substring(start, end);
             if (authToken.indexOf(' ') > -1) {
-              throw new Error('authToken is clearly invalid, it contains spaces.');
+              xhr.abort(); //Avoids multiple alerts stacking up.
+              copyTweetAndNewTab(tweet);
             }
             console.log('authToken:' + authToken);
             postTweet(tweet, authToken, 'tweetEntered');
@@ -65,6 +66,29 @@
         });
       }
     });
+    
+    //YEAH
+    var copyTweetAndNewTab = function copyTweetAndNewTab(tweet, fromXhr) {
+      var copySuccessful = false;
+      try {
+        //Hate this code.. but it works!
+        var copyDiv = document.createElement('div');
+        copyDiv.contentEditable = true;
+        document.body.appendChild(copyDiv);
+        copyDiv.innerHTML = tweet;
+        copyDiv.unselectable = 'off';
+        copyDiv.focus();
+        document.execCommand('SelectAll');
+        document.execCommand('Copy', false, null);
+        document.body.removeChild(copyDiv);
+        
+        copySuccessful = true;
+        alert('Tweet failed. Make sure you\'re online and logged into twitter.com. We copied the tweet to your clipboard so wouldn\'t lose it.' + (fromXhr ? fromXhr : ''));
+      } catch ( _ ) { }
+      chrome.tabs.create({
+        'url': 'https://twitter.com/' +  (copySuccessful ? '' : '#' + tweet)
+      });
+    };
       
     //Mmmm fuck oauth!
     var postTweet = function postTweet(tweet /*string*/, authToken /*string*/, from /*string*/) {
@@ -95,29 +119,7 @@
                 });
               }
             } else {
-              (function potentialOptimization() { //Perhaps this closure helps memory.. I dunno
-                
-                var copySuccessful = true;
-                try {
-                  //Hate this code.. but it works!
-                  var copyDiv = document.createElement('div');
-                  copyDiv.contentEditable = true;
-                  document.body.appendChild(copyDiv);
-                  copyDiv.innerHTML = tweet;
-                  copyDiv.unselectable = 'off';
-                  copyDiv.focus();
-                  document.execCommand('SelectAll');
-                  document.execCommand('Copy', false, null);
-                  document.body.removeChild(copyDiv);
-                  
-                  copySuccessful = false;
-                  alert('Your tweet failed to post, so we copied it to your clipboard.' + fromXhr);
-                } catch ( _ ) { }
-                chrome.tabs.create({
-                  'url': 'https://twitter.com/' +  (copySuccessful ? '' : '#' + tweet)
-                });
-                
-              }());
+              copyTweetAndNewTab(tweet, fromXhr);
             }
             postXhr.abort(); //dont waste users bandwidth!
             postXhr = null;

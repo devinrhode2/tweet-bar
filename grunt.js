@@ -41,7 +41,7 @@ module.exports = function gruntJS(grunt) {
     },
     watch: {
       files: '<config:lint.files>',
-      tasks: 'lint'
+      tasks: 'lint closure-compiler'
     },
     lint: {
       files: ['grunt.js', 'background.js']
