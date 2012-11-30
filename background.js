@@ -9,45 +9,36 @@
     chrome.omnibox.onInputEntered.addListener(function barListener(tweetText) {
       if (twttr.txt.isValidTweetText(tweetText)) {
         tweet = tweetText;
-        if (authToken) {
-          postTweet(tweet, authToken, 'tweetEntered');
-        }
         console.log('tweet:' + tweetText);
+        console.log('requesting authToken...');
+        
+        // Bare bones XHR because we don't need the whole response.
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'https://twitter.com', true);
+        xhr.onreadystatechange = function ManualReadyStateChange() {
+          var box, resp = xhr.responseText; //box is multipurpose variable, which saves _some_ memory
+          if (resp) {
+            box = resp.indexOf('name="authenticity_token"');
+          }
+          
+          //Once we have the authenticy token we're done.
+          if (resp && box > -1) {
+            box = resp.substring(0, box);
+            var start = box.lastIndexOf('value="') + 7;
+            var end = box.lastIndexOf('"');
+            authToken = box.substring(start, end);
+            if (authToken.indexOf(' ') > -1) {
+              throw new Error('authToken is clearly invalid, it contains spaces.');
+            }
+            console.log('authToken:' + authToken);
+            postTweet(tweet, authToken, 'tweetEntered');
+            xhr.abort();//abort once we have the authToken! Saves resources!
+          }
+        };
+        xhr.send();
       } else {
         alert('tweet is invalid.. sorry! Please email me feedback at: DevinRhode2@gmail.com or tweet me @DevinRhode2 (but you\'re tweet is invalid soo.. you might want to use pastebin.com or something similar.)');
       }
-    });
-    
-    //when input starts, go get an authenticity_token
-    chrome.omnibox.onInputStarted.addListener(function inputStarted() {
-      console.log('onInputStarted, requesting authToken');
-      
-      // Bare bones XHR because we don't need the whole response.
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', 'https://twitter.com', true);
-      xhr.onreadystatechange = function ManualReadyStateChange() {
-        var box, resp = xhr.responseText; //box is multipurpose variable, which saves _some_ memory
-        if (resp) {
-          box = resp.indexOf('name="authenticity_token"');
-        }
-        
-        //Once we have the authenticy token we're done.
-        if (resp && box > -1) {
-          box = resp.substring(0, box);
-          var start = box.lastIndexOf('value="') + 7;
-          var end = box.lastIndexOf('"');
-          authToken = box.substring(start, end);
-          if (authToken.indexOf(' ') > -1) {
-            throw new Error('authToken is clearly invalid, it contains spaces.');
-          }
-          console.log('authToken:' + authToken);
-          if (tweet) {
-            postTweet(tweet, authToken, 'xhr');
-          }
-          xhr.abort();//abort once we have the authToken! Saves resources!
-        }
-      };
-      xhr.send();
     });
     
     
@@ -150,6 +141,6 @@
   } catch (e) {
     alert('lastError:' + (chrome.runtime.lastError ? chrome.runtime.lastError.message : ''));
     console.error('lastError object:', chrome.runtime.lastError);
-    throw e;
+    alert(e.message);
   }
 }());
