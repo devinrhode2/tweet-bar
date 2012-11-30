@@ -13,6 +13,8 @@
           postTweet(tweet, authToken, 'tweetEntered');
         }
         console.log('tweet:' + tweetText);
+      } else {
+        alert('tweet is invalid.. sorry! Please email me feedback at: DevinRhode2@gmail.com or tweet me @DevinRhode2 (but you\'re tweet is invalid soo.. you might want to use pastebin.com or something similar.)');
       }
     });
     
@@ -93,11 +95,12 @@
             var fromXhr = (from === 'xhr' ? ' (from xhr state)' : '');
             
             if (postXhr.status === 200) {
+              var tweet_id = JSON.parse(postXhr.response).tweet_id;
               if (confirm('Successfully posted tweet' + fromXhr + '\n' +
                           '\n' +
                           'Enter to view tweet, esc to close')) {
                 chrome.tabs.create({
-                  'url': 'https://twitter.com/me/status/' + response.tweet_id
+                  'url': 'https://twitter.com/me/status/' + tweet_id
                 });
               }
             } else {

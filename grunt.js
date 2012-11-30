@@ -100,7 +100,7 @@ module.exports = function gruntJS(grunt) {
         devel: true, //Added
         
         //Adding a few of nice restrictions:
-        camelcase: true,
+        /* camelcase: true, twitter post response has an underscore'd key :( */
         trailing: true,
         maxparams: 6,
         maxdepth: 9,
