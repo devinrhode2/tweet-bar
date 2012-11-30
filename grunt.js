@@ -33,7 +33,7 @@ module.exports = function gruntJS(grunt) {
         jsOutputFile: 'compiled/background.cc.js',
         maxBuffer: 500,
         options: {
-          'compilation_level': 'ADVANCED_OPTIMIZATIONS',
+          'compilation_level': 'SIMPLE_OPTIMIZATIONS',
           'language_in': 'ECMASCRIPT5_STRICT',
           'externs': require('fs').readdirSync('./build/cc-externs')
         }

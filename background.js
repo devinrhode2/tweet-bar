@@ -1,4 +1,4 @@
-;(function backgroundJS() {
+(function backgroundJS() {
   'use strict';
   try {
   
@@ -74,49 +74,62 @@
     });
       
     //Mmmm fuck oauth!
-    var postTweet = function postTweet(tweet, authToken, from) {
-      console.assert(typeof tweet === 'string');
-      console.assert(tweet.length > 0);
-      console.assert(typeof authToken === 'string');
-      console.assert(authToken.length > 5);
-      console.assert(authToken.indexOf(' ') === -1);
-      postXhr = new XMLHttpRequest();
-      postXhr.open('POST', 'https://twitter.com/i/tweet/create', true);
-      postXhr.onreadystatechange = function XHROnReadyStateChange() {
-        if (postXhr.readyState === 4) {
-          var fromXhr = (from === 'xhr' ? ' (from xhr state)' : '');
-          
-          if (postXhr.status === 200) {
-            alert('Successfully posted tweet' + fromXhr);
-          } else {
-            (function potentialOptimization() { //Perhaps this closure helps memory.. I dunno
-              
-              var copySuccessful = true;
-              try {
-                //Hate this code.. but it works!
-                var copyDiv = document.createElement('div');
-                copyDiv.contentEditable = true;
-                document.body.appendChild(copyDiv);
-                copyDiv.innerHTML = tweet;
-                copyDiv.unselectable = 'off';
-                copyDiv.focus();
-                document.execCommand('SelectAll');
-                document.execCommand('Copy', false, null);
-                document.body.removeChild(copyDiv);
-                
-                copySuccessful = false;
-                alert('Your tweet failed to post, so we copied it to your clipboard.' + fromXhr);
-              } catch ( _ ) { }
-              chrome.tabs.create({
-                'url': 'https://twitter.com/' +  (copySuccessful ? '' : '#' + tweet)
-              });
-              
-            }());
-          }
-          postXhr.abort(); //dont waste users bandwidth!
-          postXhr = null;
+    var postTweet = function postTweet(tweet /*string*/, authToken /*string*/, from /*string*/) {
+      var mandate = function assertF(bool) {
+        if (!bool) {
+          throw new Error('arg error');
         }
       };
+      mandate(typeof tweet  === 'string');
+      mandate(tweet.length > 0);
+      mandate(typeof authToken === 'string');
+      mandate(authToken.length > 5);
+      mandate(authToken.indexOf(' ') === -1);
+      postXhr = new XMLHttpRequest();
+      postXhr.open('POST', 'https://twitter.com/i/tweet/create', true);
+      (function preserveTweetState(tweet) {
+        postXhr.onreadystatechange = function XHROnReadyStateChange() {
+          if (postXhr.readyState === 4) {
+            var fromXhr = (from === 'xhr' ? ' (from xhr state)' : '');
+            
+            if (postXhr.status === 200) {
+              if (confirm('Successfully posted tweet' + fromXhr + '\n' +
+                          '\n' +
+                          'Enter to view tweet, esc to close')) {
+                chrome.tabs.create({
+                  'url': 'https://twitter.com/me/status/' + response.tweet_id
+                });
+              }
+            } else {
+              (function potentialOptimization() { //Perhaps this closure helps memory.. I dunno
+                
+                var copySuccessful = true;
+                try {
+                  //Hate this code.. but it works!
+                  var copyDiv = document.createElement('div');
+                  copyDiv.contentEditable = true;
+                  document.body.appendChild(copyDiv);
+                  copyDiv.innerHTML = tweet;
+                  copyDiv.unselectable = 'off';
+                  copyDiv.focus();
+                  document.execCommand('SelectAll');
+                  document.execCommand('Copy', false, null);
+                  document.body.removeChild(copyDiv);
+                  
+                  copySuccessful = false;
+                  alert('Your tweet failed to post, so we copied it to your clipboard.' + fromXhr);
+                } catch ( _ ) { }
+                chrome.tabs.create({
+                  'url': 'https://twitter.com/' +  (copySuccessful ? '' : '#' + tweet)
+                });
+                
+              }());
+            }
+            postXhr.abort(); //dont waste users bandwidth!
+            postXhr = null;
+          }
+        };
+      }(tweet));
       postXhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
       postXhr.send('status=' + tweet + '&place_id=&authenticity_token=' + authToken); //including place_id so it looks more like a legitimate post
       //(on twitter.com, place_id is included in the post data
