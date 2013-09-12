@@ -1,7 +1,7 @@
 # Tweet Bar
 
-- Install in webstore: https://chrome.google.com/webstore/detail/tweet-bar/pmhffbojijocplkhhgpdfipnmpblohel
-- Shortline: http://bit.ly/tweet-bar
+- Webstore: https://chrome.google.com/webstore/detail/tweet-bar/pmhffbojijocplkhhgpdfipnmpblohel
+- Shortlink: http://bit.ly/tweet-bar
 
 ## Tweet from the omnibar
 
