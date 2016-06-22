@@ -4,6 +4,7 @@
      "persistent": false,
      "scripts": [
        "node_modules/extension-include/extension-include.js",
+       "node_modules/jquery/dist/jquery.js",
        "node_modules/twitter-text/twitter-text.js",
        "background.js"
      ]

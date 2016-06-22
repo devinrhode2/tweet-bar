@@ -1,17 +1,17 @@
 (function backgroundJS() {
   'use strict';
   try {
-  
+
     //globals:
     var tweet = false, authToken, postXhr;
-    
+
     //Post tweet listener
     chrome.omnibox.onInputEntered.addListener(function barListener(tweetText) {
       if (twttr.txt.isValidTweetText(tweetText)) {
         tweet = tweetText;
         console.log('tweet:' + tweetText);
         console.log('requesting authToken...');
-        
+
         // Bare bones XHR because we don't need the whole response.
         var xhr = new XMLHttpRequest();
         xhr.open('GET', 'https://twitter.com', true);
@@ -20,7 +20,7 @@
           if (resp) {
             box = resp.indexOf('name="authenticity_token"');
           }
-          
+
           //Once we have the authenticy token we're done.
           if (resp && box > -1) {
             box = resp.substring(0, box);
@@ -41,8 +41,8 @@
         alert('tweet is invalid.. sorry! Please email me feedback at: DevinRhode2@gmail.com or tweet me @DevinRhode2 (but you\'re tweet is invalid soo.. you might want to use pastebin.com or something similar.)');
       }
     });
-    
-    
+
+
     //Character counter/suggestion text.
     var defaultSuggestion = 'Tweet: %s';
     chrome.omnibox.setDefaultSuggestion({
@@ -66,7 +66,7 @@
         });
       }
     });
-    
+
     //YEAH
     var copyTweetAndNewTab = function copyTweetAndNewTab(tweet, fromXhr) {
       var copySuccessful = false;
@@ -81,7 +81,7 @@
         document.execCommand('SelectAll');
         document.execCommand('Copy', false, null);
         document.body.removeChild(copyDiv);
-        
+
         copySuccessful = true;
         alert('Tweet failed. Make sure you\'re online and logged into twitter.com. We copied the tweet to your clipboard so wouldn\'t lose it.' + (fromXhr ? fromXhr : ''));
       } catch ( _ ) { }
@@ -89,10 +89,16 @@
         'url': 'https://twitter.com/' +  (copySuccessful ? '' : '#' + tweet)
       });
     };
-      
+    var headers = {
+      'Content-type': 'application/x-www-form-urlencoded',
+      accept: 'application/json, text/javascript, */*; q=0.01',
+      origin: 'https://twitter.com',
+      referer: 'https://twitter.com/',
+      'x-requested-with': 'XMLHttpRequest'
+    };
     //Mmmm fuck oauth!
     var postTweet = function postTweet(tweet /*string*/, authToken /*string*/, from /*string*/) {
-      var mandate = function assertF(bool) {
+      var mandate = function mandateF(bool) {
         if (!bool) {
           throw new Error('arg error');
         }
@@ -108,7 +114,7 @@
         postXhr.onreadystatechange = function XHROnReadyStateChange() {
           if (postXhr.readyState === 4) {
             var fromXhr = (from === 'xhr' ? ' (from xhr state)' : '');
-            
+
             if (postXhr.status === 200) {
               var tweet_id = JSON.parse(postXhr.response).tweet_id;
               if (confirm('Successfully posted tweet' + fromXhr + '\n' +
@@ -126,23 +132,51 @@
           }
         };
       }(tweet));
-      postXhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-      postXhr.send('status=' + tweet + '&place_id=&authenticity_token=' + authToken); //including place_id so it looks more like a legitimate post
-      //(on twitter.com, place_id is included in the post data
+      //add headers:
+      var headers = {
+        'content-type': 'application/x-www-form-urlencoded',
+        accept: 'application/json, text/javascript, */*; q=0.01',
+        origin: 'https://twitter.com',
+        referer: 'https://twitter.com/',
+        'x-requested-with': 'XMLHttpRequest'
+      };
+      console.log('change')
+      Object.keys(headers).forEach((header) => {
+        postXhr.setRequestHeader(header, headers[header]);
+      })
+
+      //postXhr.send('status=' + tweet + '&place_id=&authenticity_token=' + authToken); //including place_id so it looks more like a legitimate post
+      postXhr.send('authenticity_token='+authToken+'&is_permalink_page=false&place_id=&status='+tweet.replace(/\s/gi, '+')+'&tagged_users=');
       tweet = false;
     };
-    
+
     chrome.omnibox.onInputCancelled.addListener(function inputCancelled() {
       tweet = false;
       if (postXhr) {
         postXhr.abort();
       }
     });
-    
-    console.log('loaded');
+
+    console.log('loaded 2');
   } catch (e) {
     alert('lastError:' + (chrome.runtime.lastError ? chrome.runtime.lastError.message : ''));
     console.error('lastError object:', chrome.runtime.lastError);
     alert(e.message);
   }
+
+  chrome.webRequest.onBeforeSendHeaders.addListener(function (req) {
+    console.log('onBeforeSendHeaders');
+    req.requestHeaders.forEach(function(header, index){
+      console.log(header.name, header.value);
+      if (headers[header.name.toLowerCase()]) {
+        req.requestHeaders[index].value = headers[header.name.toLowerCase()]
+      }
+    })
+    return {requestHeaders: req.requestHeaders};
+  },
+  {
+    urls: ['https://twitter.com/*']
+  },
+  ['blocking', 'requestHeaders']
+)
 }());
