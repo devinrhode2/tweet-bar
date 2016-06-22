@@ -1,10 +1,9 @@
 {
    "manifest_version": 2,
    "background": {
-     "persistent": false,
+     "persistent": true,
      "scripts": [
        "node_modules/extension-include/extension-include.js",
-       "node_modules/jquery/dist/jquery.js",
        "node_modules/twitter-text/twitter-text.js",
        "background.js"
      ]
@@ -23,6 +22,8 @@
    "permissions": [
      "https://twitter.com/",
      "https://twitter.com/i/tweet/create",
+     "webRequest",
+     "webRequestBlocking",
      "clipboardWrite"
    ],
    "version": "0.4.1"
