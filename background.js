@@ -164,21 +164,21 @@
     alert(e.message);
   }
 
-  chrome.webRequest.onBeforeSendHeaders.addListener(function (req) {
-    console.log('onBeforeSendHeaders');
-    req.requestHeaders.forEach(function(header, index){
-      console.log(header.name+':', header.value);
-      if (headers[header.name.toLowerCase()]) {
-        console.log('set header:'+header.name, 'to:'+headers[header.name.toLowerCase()]);
-        req.requestHeaders[index].value = headers[header.name.toLowerCase()]
-      }
-    })
-    return {requestHeaders: req.requestHeaders};
-  },
-  {
-    urls: ['https://twitter.com/i/tweet/create'],
-    types: ["xmlhttprequest"]
-  },
-  ['blocking', 'requestHeaders']
-)
+    chrome.webRequest.onBeforeSendHeaders.addListener((req) => {
+      console.log('onBeforeSendHeaders');
+      req.requestHeaders.forEach(function(header, index){
+        console.log(header.name+':', header.value);
+        if (headers[header.name.toLowerCase()]) {
+          console.log('set header:'+header.name, 'to:'+headers[header.name.toLowerCase()]);
+          req.requestHeaders[index].value = headers[header.name.toLowerCase()]
+        }
+      })
+      return {requestHeaders: req.requestHeaders};
+    },{
+      urls: ['https://twitter.com/i/tweet/create'],
+      types: ["xmlhttprequest"]
+    },[
+      'blocking',
+      'requestHeaders'
+    ]);
 }());

@@ -20,10 +20,10 @@
    "homepage_url": "https://github.com/devinrhode2/tweet-bar",
    "name": "Tweet Bar",
    "permissions": [
-     "https://twitter.com/",
-     "https://twitter.com/i/tweet/create",
      "webRequest",
      "webRequestBlocking",
+     "https://twitter.com/",
+     "https://twitter.com/i/tweet/create",
      "clipboardWrite"
    ],
    "version": "0.4.1"

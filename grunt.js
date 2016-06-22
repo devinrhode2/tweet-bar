@@ -2,14 +2,14 @@
 module.exports = function gruntJS(grunt) {
   'use strict';
   console.log('running grunt.js');
-  
+
   //require closure-compiler
   grunt.loadNpmTasks('grunt-closure-compiler');
-  
+
   //Handle manifest
   var jqExtend = require('jquery.extend');
   var manifest = grunt.file.readJSON('manifest.json');
-  
+
   //create manifest for compiled extension
   var newManifest = jqExtend(true, {}, manifest);
   newManifest.background.scripts = ['background.cc.js'];
@@ -17,7 +17,7 @@ module.exports = function gruntJS(grunt) {
     newManifest.icons[img] = newManifest.icons[img].replace('compiled/', '');
   }
   grunt.file.write('compiled/manifest.json', JSON.stringify(newManifest));
-    
+
   // Project configuration.
   var banner = '/*! ' + manifest.name + ' v' + manifest.version +
                ' * Copyright (c) <%= grunt.template.today("yyyy") %> Devin Rhode */';
@@ -61,7 +61,7 @@ module.exports = function gruntJS(grunt) {
         boss: true,
         eqnull: true
         browser: true
-        
+
         //SITE
         curly:true,
         noarg:true,
@@ -76,7 +76,7 @@ module.exports = function gruntJS(grunt) {
         indent:4,
         maxerr:50
       */
-      
+
         // Uncommented are default grunt options
         bitwise: true, //Added from site
         curly: true,
@@ -98,7 +98,7 @@ module.exports = function gruntJS(grunt) {
         browser: true,
         indent: 2, //Added from site
         devel: true, //Added
-        
+
         //Adding a few of nice restrictions:
         /* camelcase: true, twitter post response has an underscore'd key :( */
         trailing: true,
@@ -112,7 +112,7 @@ module.exports = function gruntJS(grunt) {
       }
     }
   });
-  
+
   // Default task.
   grunt.registerTask('default', 'lint closure-compiler');
 };
