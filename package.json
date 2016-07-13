@@ -1,0 +1,28 @@
+{
+  "name": "tweet-bar",
+  "version": "1.0.0",
+  "description": "- Webstore: https://chrome.google.com/webstore/detail/tweet-bar/pmhffbojijocplkhhgpdfipnmpblohel - Shortlink: http://bit.ly/tweet-bar",
+  "main": "background.js",
+  "dependencies": {
+    "extension-include": "github:devinrhode2/extension-include",
+    "fs": "0.0.2",
+    "grunt-closure-compiler": "^0.0.21",
+    "jquery.extend": "0.0.0",
+    "twitter-text": "^1.13.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devinrhode2/tweet-bar.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/devinrhode2/tweet-bar/issues"
+  },
+  "homepage": "https://github.com/devinrhode2/tweet-bar#readme"
+}

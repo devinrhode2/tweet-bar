@@ -3,7 +3,6 @@
    "background": {
      "persistent": true,
      "scripts": [
-       "node_modules/extension-include/extension-include.js",
        "node_modules/twitter-text/twitter-text.js",
        "background.js"
      ]
@@ -26,5 +25,5 @@
      "https://twitter.com/i/tweet/create",
      "clipboardWrite"
    ],
-   "version": "0.4.1"
+   "version": "0.4.2"
 }
